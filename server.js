@@ -94,11 +94,14 @@ Stage movement: [Move forward / Hold / Move back] - [why]
 ## 2. RISK FLAGS
 Calibrated to: [Stage name]
 
-Only flag risks meaningful at this stage. For each risk:
-- [Risk type]: [Specific evidence from transcript]
+Only flag risks meaningful at this stage. For each risk, use ALL CAPS for the risk type label:
+- [RISK TYPE IN ALL CAPS]: [Specific evidence from transcript]
   Severity: [High / Medium / Low] - [why it matters now]
 
-ALWAYS flag: (1) COMPETITOR MENTIONED, (2) PRODUCT FIT CONCERN
+ALWAYS flag these regardless of stage (use ALL CAPS for risk type label):
+1. COMPETITOR MENTIONED
+2. PRODUCT FIT CONCERN
+3. BUDGET UNCERTAINTY (if budget is unknown/unclear)
 
 If no risks: "No significant risks detected."
 
@@ -115,7 +118,8 @@ For each:
 
 ## 4. NEXT STEPS
 
-- [Action] - Owner: [Rep / Prospect / Both] - Due: [Date or TBD]
+□ [Action]
+  Owner: [Rep / Prospect / Both] | Due: [Date or TBD]
 
 Next step discipline: [Strong / Weak / None committed]
 
@@ -185,9 +189,10 @@ Missing info: [bullets]
 ---
 
 ## 7. COACH'S CORNER
-For a [Stage] call
 
 [2-4 sentences. Lead with what went well, then one constructive suggestion.]
+
+Use proper grammar: "For a Discovery call", "For an Evaluation call", etc.
 
 END OF PIPENOTE REPORT`;
 
