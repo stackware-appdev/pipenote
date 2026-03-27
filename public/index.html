@@ -354,13 +354,17 @@ select {
 .section-body {
   color: var(--text-secondary);
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
   white-space: pre-wrap;
 }
 
 .section-body strong {
   color: var(--text);
   font-weight: 500;
+}
+
+.section-body div {
+  margin-bottom: 4px;
 }
 
 .crm-blocks {
@@ -596,10 +600,11 @@ function parseAndRender(text) {
     }
     
     if (healthMatch) {
-      const health = healthMatch[1].trim();
-      const healthClass = health === 'Strong' ? 'health-strong' : health === 'Uncertain' ? 'health-uncertain' : 'health-risk';
-      headerHTML += `<div class="health-badge ${healthClass}">${health}</div>`;
-    }
+  const health = healthMatch[1].trim();
+  const healthClass = health === 'Strong' ? 'health-strong' : health === 'Uncertain' ? 'health-uncertain' : 'health-risk';
+  const healthEmoji = health === 'Strong' ? '🟢' : health === 'Uncertain' ? '🟡' : '🔴';
+  headerHTML += `<div class="health-badge ${healthClass}">${healthEmoji} ${health} Health</div>`;
+}
     
     document.getElementById('outputHeader').innerHTML = headerHTML;
   }
@@ -743,10 +748,16 @@ function extractCRMBlock(content, type) {
 }
 
 function formatContent(content) {
-  // Remove markdown artifacts and clean up
   return content
     .replace(/\*\*/g, '')
+    // Make "- Label:" patterns into proper labels
+    .replace(/^- ([^:]+):/gm, '<div style="margin-top: 12px;"><strong>$1:</strong>')
+    .replace(/^  ([^:]+):/gm, '  <strong>$1:</strong>')
+    // Format calibrated to line
     .replace(/Calibrated to:[^\n]*/g, (m) => `<em style="color: var(--text-tertiary); font-size: 13px;">${m}</em>`)
+    // Fix grammar: "For a Initial" -> "For an Initial"
+    .replace(/For a Initial/g, 'For an Initial')
+    .replace(/For a Evaluation/g, 'For an Evaluation')
     .trim();
 }
 
