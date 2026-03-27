@@ -751,8 +751,6 @@ function formatContent(content) {
   return content
     .replace(/\*\*/g, '')
     // Make "- Label:" patterns into proper labels
-    .replace(/^- ([^:]+):/gm, '<div style="margin-top: 12px;"><strong>$1:</strong>')
-    .replace(/^  ([^:]+):/gm, '  <strong>$1:</strong>')
     // Format calibrated to line
     .replace(/Calibrated to:[^\n]*/g, (m) => `<em style="color: var(--text-tertiary); font-size: 13px;">${m}</em>`)
     // Fix grammar: "For a Initial" -> "For an Initial"
