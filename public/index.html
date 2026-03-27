@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PipeNote - AI Sales Coach</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0b0d;
+  --surface: #141519;
+  --surface-hover: #1a1b20;
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.15);
+  --text: #e4e4e7;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #71717a;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-light: rgba(59, 130, 246, 0.1);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 440px 1fr;
+  min-height: 100vh;
+}
+
+/* Left panel */
+.left-panel {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  padding-left: 42px;
+}
+
+.input-section {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.required {
+  color: var(--danger);
+}
+
+textarea, input, select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 12px;
+  outline: none;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 200px;
+  line-height: 1.5;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+textarea:focus, input:focus, select:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%2371717a' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 14px;
+  width: 100%;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  background: var(--surface-hover);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.usage-badge {
+  background: var(--accent-light);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+/* Right panel */
+.right-panel {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  font-size: 32px;
+}
+
+.empty-state h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  max-width: 320px;
+}
+
+.output-container {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+}
+
+.output-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stage-badge {
+  background: var(--accent-light);
+  border: 1px solid var(--accent);
+  border-radius: 20px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 12px;
+}
+
+.health-badge {
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 12px;
+}
+
+.health-strong { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); }
+.health-uncertain { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); color: var(--warning); }
+.health-risk { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); }
+
+.output-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  transition: all 0.15s;
+}
+
+.copy-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.copy-btn.copied {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+.section-body {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.section-body strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.crm-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.crm-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.crm-block-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.crm-block-content {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-family: 'SF Mono', monospace;
+  white-space: pre-wrap;
+  margin-bottom: 12px;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  color: var(--danger);
+  padding: 16px;
+  margin: 20px;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+  .left-panel {
+    position: relative;
+    height: auto;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">P</div>
+        <div class="logo-text">PipeNote</div>
+      </div>
+      <div class="tagline">AI Sales Coach for Salesforce & HubSpot</div>
+    </div>
+
+    <div class="input-section">
+      <div class="field-group">
+        <label>Call Transcript <span class="required">*</span></label>
+        <textarea 
+          id="transcript" 
+          placeholder="Paste your Zoom, Google Meet, or Teams call transcript here...
+
+Example:
+Rep: Hi Sarah, thanks for taking the time today.
+Prospect: No problem, happy to chat.
+Rep: So I understand you're looking at solutions for..."
+        ></textarea>
+      </div>
+
+      <div class="row">
+        <div class="field-group">
+          <label>Deal Name</label>
+          <input type="text" id="dealName" placeholder="Acme Corp">
+        </div>
+        <div class="field-group">
+          <label>Deal Value</label>
+          <input type="text" id="dealValue" placeholder="$50k">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Deal Stage</label>
+        <select id="stage">
+          <option value="">Let AI infer from transcript</option>
+          <option value="Discovery">Discovery</option>
+          <option value="Demo">Demo</option>
+          <option value="Evaluation">Evaluation</option>
+          <option value="Negotiation">Negotiation</option>
+          <option value="Closing">Closing</option>
+          <option value="Follow-up">Follow-up</option>
+        </select>
+      </div>
+
+      <div id="usage-display" class="usage-badge" style="display: none;">
+        10 free reports remaining this month
+      </div>
+
+      <button class="btn-primary" id="generateBtn" onclick="generateReport()">
+        <span id="btnText">Generate Report</span>
+        <div class="spinner" id="spinner" style="display: none;"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📊</div>
+      <h2>Ready to analyze your sales call</h2>
+      <p>Paste your call transcript on the left and click "Generate Report" to get instant CRM updates and coaching feedback.</p>
+    </div>
+
+    <div class="output-container" id="outputContainer">
+      <div class="output-header" id="outputHeader"></div>
+      <div class="output-content" id="outputContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let fullReport = '';
+let sections = {};
+
+async function generateReport() {
+  const transcript = document.getElementById('transcript').value.trim();
+  
+  if (!transcript) {
+    alert('Please paste a call transcript');
+    return;
+  }
+  
+  const dealName = document.getElementById('dealName').value.trim();
+  const dealValue = document.getElementById('dealValue').value.trim();
+  const stage = document.getElementById('stage').value;
+  
+  // UI updates
+  document.getElementById('btnText').textContent = 'Generating...';
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('generateBtn').disabled = true;
+  
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('outputContainer').style.display = 'flex';
+  document.getElementById('outputContent').innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-tertiary);">Analyzing transcript...</div>';
+  
+  fullReport = '';
+  sections = {};
+  
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript, dealName, dealValue, stage })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to generate report');
+    }
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      const lines = decoder.decode(value).split('\n');
+      
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (!data) continue;
+        
+        try {
+          const parsed = JSON.parse(data);
+          
+          if (parsed.error) {
+            throw new Error(parsed.error);
+          }
+          
+          if (parsed.done) {
+            updateUsageDisplay(parsed.remaining);
+            continue;
+          }
+          
+          if (parsed.text) {
+            fullReport += parsed.text;
+            parseAndRender(fullReport);
+          }
+        } catch (e) {
+          if (e instanceof SyntaxError) continue;
+          throw e;
+        }
+      }
+    }
+    
+  } catch (err) {
+    document.getElementById('outputContent').innerHTML = `
+      <div class="error-message">
+        ${err.message}
+      </div>
+    `;
+  } finally {
+    document.getElementById('btnText').textContent = 'Generate Report';
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('generateBtn').disabled = false;
+  }
+}
+
+function parseAndRender(text) {
+  // Extract stage and health from section 1
+  const stageMatch = text.match(/Inferred stage:\s*([^\n-]+)/i);
+  const healthMatch = text.match(/Deal health:\s*(Strong|Uncertain|At risk)/i);
+  
+  if (stageMatch || healthMatch) {
+    let headerHTML = '';
+    
+    if (stageMatch) {
+      const stage = stageMatch[1].trim().split('-')[0].trim();
+      headerHTML += `<div class="stage-badge">${stage}</div>`;
+    }
+    
+    if (healthMatch) {
+      const health = healthMatch[1].trim();
+      const healthClass = health === 'Strong' ? 'health-strong' : health === 'Uncertain' ? 'health-uncertain' : 'health-risk';
+      headerHTML += `<div class="health-badge ${healthClass}">${health}</div>`;
+    }
+    
+    document.getElementById('outputHeader').innerHTML = headerHTML;
+  }
+  
+  // Parse sections
+  const sectionRegex = /##\s*(\d+)\.\s*([^\n]+)\n([\s\S]*?)(?=##\s*\d+\.|$)/g;
+  let match;
+  
+  while ((match = sectionRegex.exec(text)) !== null) {
+    const num = match[1];
+    const title = match[2].trim();
+    const content = match[3].trim();
+    
+    sections[num] = { title, content };
+  }
+  
+  renderSections();
+}
+
+function renderSections() {
+  let html = '';
+  
+  // Section 1: Deal Snapshot
+  if (sections['1']) {
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📋 ${sections['1'].title}</div>
+        </div>
+        <div class="section-body">${formatContent(sections['1'].content)}</div>
+      </div>
+    `;
+  }
+  
+  // Section 2: Risk Flags
+  if (sections['2']) {
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">🚩 ${sections['2'].title}</div>
+        </div>
+        <div class="section-body">${formatContent(sections['2'].content)}</div>
+      </div>
+    `;
+  }
+  
+  // Section 3: Objections
+  if (sections['3']) {
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">💬 ${sections['3'].title}</div>
+        </div>
+        <div class="section-body">${formatContent(sections['3'].content)}</div>
+      </div>
+    `;
+  }
+  
+  // Section 4: Next Steps
+  if (sections['4']) {
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">✅ ${sections['4'].title}</div>
+        </div>
+        <div class="section-body">${formatContent(sections['4'].content)}</div>
+      </div>
+    `;
+  }
+  
+  // Section 5: Missing Info
+  if (sections['5']) {
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">⚠️ ${sections['5'].title}</div>
+        </div>
+        <div class="section-body">${formatContent(sections['5'].content)}</div>
+      </div>
+    `;
+  }
+  
+  // Section 6: CRM Blocks
+  if (sections['6']) {
+    const crmContent = sections['6'].content;
+    const salesforce = extractCRMBlock(crmContent, 'SALESFORCE');
+    const hubspot = extractCRMBlock(crmContent, 'HUBSPOT');
+    const generic = extractCRMBlock(crmContent, 'GENERIC');
+    
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📝 CRM Update Blocks</div>
+        </div>
+        <div class="crm-blocks">
+          ${salesforce ? `
+            <div class="crm-block">
+              <div class="crm-block-header">Salesforce</div>
+              <div class="crm-block-content">${salesforce}</div>
+              <button class="copy-btn" onclick="copyToClipboard(this, \`${salesforce.replace(/`/g, '\\`')}\`)">Copy</button>
+            </div>
+          ` : ''}
+          ${hubspot ? `
+            <div class="crm-block">
+              <div class="crm-block-header">HubSpot</div>
+              <div class="crm-block-content">${hubspot}</div>
+              <button class="copy-btn" onclick="copyToClipboard(this, \`${hubspot.replace(/`/g, '\\`')}\`)">Copy</button>
+            </div>
+          ` : ''}
+          ${generic ? `
+            <div class="crm-block">
+              <div class="crm-block-header">Generic</div>
+              <div class="crm-block-content">${generic}</div>
+              <button class="copy-btn" onclick="copyToClipboard(this, \`${generic.replace(/`/g, '\\`')}\`)">Copy</button>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+  
+  // Section 7: Coach's Corner
+  if (sections['7']) {
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">🎯 ${sections['7'].title}</div>
+        </div>
+        <div class="section-body">${formatContent(sections['7'].content)}</div>
+      </div>
+    `;
+  }
+  
+  document.getElementById('outputContent').innerHTML = html;
+}
+
+function extractCRMBlock(content, type) {
+  const regex = new RegExp(`${type}\\s*\\n([\\s\\S]*?)(?=\\n\\n---|$)`, 'i');
+  const match = content.match(regex);
+  return match ? match[1].trim() : null;
+}
+
+function formatContent(content) {
+  // Remove markdown artifacts and clean up
+  return content
+    .replace(/\*\*/g, '')
+    .replace(/Calibrated to:[^\n]*/g, (m) => `<em style="color: var(--text-tertiary); font-size: 13px;">${m}</em>`)
+    .trim();
+}
+
+function copyToClipboard(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function updateUsageDisplay(remaining) {
+  const usageEl = document.getElementById('usage-display');
+  usageEl.style.display = 'block';
+  usageEl.textContent = `${remaining} free reports remaining this month`;
+}
+
+// Keyboard shortcut: Cmd/Ctrl+Enter to generate
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    generateReport();
+  }
+});
+</script>
+
+</body>
+</html>
